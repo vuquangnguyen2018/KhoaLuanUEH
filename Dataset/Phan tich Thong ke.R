@@ -5,6 +5,8 @@ library(readr) # MA TRAN PEARSON
 library(strucchange) # KIEM DINH CHOW
 library(plm) # KIEM DINH HAUSMAN
 library(lmtest) # KIEM DINH Breusch-Pagan Test.
+library(openxlsx)
+library(xlsx)
 
 Data <- read_excel("C:/Users/Vu Quang Nguyen/Working/KhoaLuanUEH/Dataset/Report.xlsx", 
                      sheet = "Output")
@@ -16,6 +18,8 @@ Top_Ticket<-Data %>%
   filter(case_when(`Nam`==2021 ~  `Tong Tai san`>= 100*10^3 & `Von hoa thi truong`>=1000 )) %>%# Tong Tai san >= 1000B, Von Hoa >=1000B 
   select(`Ma CK`)
 
+Top_Ticket <- Top_Ticket %>% 
+  mutate(ID_CK=row_number())
 
 # APPLIED FILTER -> DATASET_1
 Data <- right_join(Data,Top_Ticket, by = "Ma CK")
@@ -25,6 +29,9 @@ Data<-Data %>%
 
 View(Data)
 
+# EXPORT CSV/XLSX
+write.csv(Top_Ticket, file="TOP_TICKET.csv",  row.names=FALSE)
+write_xlsx(Data, "OUTPUT_R.xlsx") 
 
 # PEARSON TABULATE CORRELATION
 Corr <- cor(Data %>% 
