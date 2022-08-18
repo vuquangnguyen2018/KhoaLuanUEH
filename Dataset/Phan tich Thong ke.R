@@ -6,7 +6,7 @@ library(strucchange) # KIEM DINH CHOW
 library(plm) # KIEM DINH HAUSMAN
 library(lmtest) # KIEM DINH Breusch-Pagan Test.
 
-Data <- read_excel("Working/UEH/KhoaLuanUEH/Dataset/Report.xlsx", 
+Data <- read_excel("C:/Users/Vu Quang Nguyen/Working/KhoaLuanUEH/Dataset/Report.xlsx", 
                      sheet = "Output")
 Data<-select(Data,-1)
 
