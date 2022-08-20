@@ -1,8 +1,5 @@
-clear
-//import excel "C:\Users\Vu Quang Nguyen\Working\KhoaLuanUEH\Dataset\Report.xlsx", sheet("Output") firstrow
-import excel "C:\Users\Vu Quang Nguyen\Working\KhoaLuanUEH\Dataset\Report.xlsx", sheet("Output") firstrow
-drop A
-generate ID = _n
+
+
 
 // THONG KE MO TA =======================================================
 label define NhomNganh 1 "Công nghiệp" 2 "Hàng Tiêu dùng" 3 "Nguyên vật liệu" 4 "Công nghệ Thông tin" 5 "Dịch vụ Tiêu dùng" 6 "Dầu khí" 7 "Dược phẩm và Y tế"
@@ -38,7 +35,7 @@ test GRWTH SIZE PROF LIQD UNIQ TANG   GDP COVID
 
 // --------------------------------------------------------------------------
 // MO HINH FE and RE
-xtset ID Nam
+xtset INDS ID_Year
 // Hoi quy FEM ----------------------
 xtreg STLEV GRWTH SIZE PROF LIQD UNIQ TANG GDP COVID,fe
 estimates store fe
