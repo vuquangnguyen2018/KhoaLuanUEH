@@ -6,7 +6,21 @@ library(strucchange) # KIEM DINH CHOW
 library(plm) # KIEM DINH HAUSMAN
 library(lmtest) # KIEM DINH Breusch-Pagan Test.
 library(openxlsx)
-library(xlsx)
+
+
+
+Output<- read_excel("C:/Users/Vu Quang Nguyen/Working/KhoaLuanUEH/Dataset/Report.xlsx", 
+                    sheet = "Output")
+
+Output<-select(Output,-1)
+Output <- Output %>% 
+  mutate(ID=row_number())
+
+
+
+
+
+
 
 Data <- read_excel("C:/Users/Vu Quang Nguyen/Working/KhoaLuanUEH/Dataset/Report.xlsx", 
                      sheet = "Output")
@@ -30,8 +44,8 @@ Data<-Data %>%
 View(Data)
 
 # EXPORT CSV/XLSX
-write.csv(Top_Ticket, file="TOP_TICKET.csv",  row.names=FALSE)
-write_xlsx(Data, "OUTPUT_R.xlsx") 
+#write.csv(Top_Ticket, file="TOP_TICKET.csv",  row.names=FALSE)
+#write_xlsx(Data, "OUTPUT_R.xlsx") 
 
 # PEARSON TABULATE CORRELATION
 Corr <- cor(Data %>% 
@@ -88,45 +102,41 @@ Data %>%
 
 
 
-#MODEL TEST: Method: OLS, RE, FE
 
-# TESTING MODEL: 
-# Chow: H0: OLS Gop phu hop , H1: FE phu hop -> p_value <5% -> Chon FE
-# Hausman: H0: RE phu hop, H1: FE phu hop -> p_value <5% -> chon FE
-# Breusch-Pagan Test H0: OLS Gop; H1: RE Phu hop -> p_value < 5% -> Chon RE
+#--------- SETTING REGRESSION
+# Set data as panel data
+pdata <- plm.data(Output, index=c("INDS","ID_Year"))
 
-#--MODEL: Short Term STLEV
-reg_STLEV <- STLEV ~ GRWTH + SIZE + PROF + LIQD + UNIQ + TANG +GDP +COVID 
-#--MODEL: Short Term LTLEV
-reg_LTLEV <- LTLEV ~ GRWTH  + PROF + LIQD + UNIQ + TANG +GDP +COVID 
-#--MODEL: Short Term BLEV
-reg_BLEV <- BLEV ~ GRWTH + PROF + LIQD + UNIQ + TANG +GDP +COVID 
+# FE------------------------
+fe<-plm(STLEV ~ GRWTH + SIZE + PROF + LIQD + UNIQ + TANG +GDP +COVID,
+        data = Output, 
+        model = "within",
+        index = c("INDS","ID_Year"))
+summary(fe)
 
 
 
-# KIEM DINH CHOW TEST -> SHORT TERM
-sctest(reg_STLEV, data = Data, type = "Chow", point = 10)
-# KIEM DINH CHOW TEST -> LONG TERM
-sctest(reg_LTLEV, data = Data, type = "Chow", point = 10)
-# KIEM DINH CHOW TEST -> BOOK VALUE OF DEBT
-sctest(reg_BLEV, data = Data, type = "Chow", point = 10)
+# RE------------------------
+re<-plm(STLEV ~ GRWTH + SIZE + PROF + LIQD + UNIQ + TANG +GDP +COVID,
+        data = Output, model = "random",
+        random.method = "swar", 
+        random.dfcor = 3,
+        index = c("INDS","ID_Year"))
+
+# re<-plm(STLEV ~ GRWTH + SIZE + PROF + LIQD + UNIQ + TANG +GDP +COVID,data = Output, model = "between", index = c("INDS","ID_Year"))
+
+summary(re)
+
+#--OLS
+OLS_Model<-lm(STLEV ~ GRWTH + SIZE + PROF + LIQD + UNIQ + TANG +GDP +COVID,data = Output)
+summary(OLS_Model)
 
 
-# KIEM DINH HAUSMAN TEST -> SHORT TERM
-phtest(reg_STLEV, data = Data)
-# KIEM DINH HAUSMAN TEST -> LONG TERM
-phtest(reg_LTLEV, data = Data)
-# KIEM DINH HAUSMAN TEST -> BOOK VALUE OF DEBT
-phtest(reg_BLEV, data = Data)
+#-------------------
+plmtest(fe,c("time"),type = ("bp"))
+pcdtest(fe,test = ("lm"))
 
 
-
-# KIEM DINH  Breusch-Pagan Test -> SHORT TERM
-bptest(reg_STLEV, data = Data)
-# KIEM DINH Breusch-Pagan Test -> LONG TERM
-bptest(reg_LTLEV, data = Data)
-# KIEM DINH Breusch-Pagan Test -> BOOK VALUE OF DEBT
-bptest(reg_BLEV, data = Data)
-
-
-
+# POOLED OLS------------------------
+OLS<-plm(STLEV ~ GRWTH + SIZE + PROF + LIQD + UNIQ + TANG +GDP +COVID ,data = Data, model = "pooling", index = c("INDS","ID_Year"))
+summary(re)
