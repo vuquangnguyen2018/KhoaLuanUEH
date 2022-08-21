@@ -51,11 +51,12 @@ summary(fe)
 
 #RANDOM EFFECT MODEL-------------------------------
 
-re <- plm(STLEV ~   SIZE ,
+
+# RE------------------------
+re <- plm(STLEV ~ GRWTH +SIZE + LIQD +TANG + UNIQ, 
           data = Output, 
           index = c("INDS","ID_Year"),
           model = "random")
-
 summary(re)
 
 

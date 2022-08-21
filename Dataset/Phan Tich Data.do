@@ -1,4 +1,6 @@
-
+clear
+import excel "C:\Users\Vu Quang Nguyen\Working\KhoaLuanUEH\Dataset\Report.xlsx", sheet("Output") cellrange(B1:T914) firstrow
+gen ID = _n
 
 
 // THONG KE MO TA =======================================================
@@ -16,7 +18,7 @@ graph hbar (mean) GRWTH SIZE LIQD  , over(INDS)
 graph hbar (mean) STLEV LTLEV BLEV  , over(INDS)
 
 /// CORRELATION
-pwcorr GRWTH SIZE PROF LIQD UNIQ TANG GDP COVID, sig star(.01)
+pwcorr GRWTH SIZE PROF LIQD UNIQ TANG GDP COVID, star(.01)
 // HOI QUY REGRESSION =======================================================
 reg STLEV GRWTH SIZE PROF LIQD UNIQ TANG INDS  GDP COVID
 
