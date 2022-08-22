@@ -8,9 +8,13 @@ library(lmtest) # KIEM DINH Breusch-Pagan Test.
 library(openxlsx)
 library(ggplot2)
 library(hrbrthemes)
+library(aod)
+library(MASS)
+library(estimatr)
 
 #==================IMPORT===========================================================================
 rm(list = ls()) # CLEAR
+setwd("C:/Users/Vu Quang Nguyen/Working/KhoaLuanUEH/Dataset")
 
 Output<- read_excel("C:/Users/Vu Quang Nguyen/Working/KhoaLuanUEH/Dataset/Report.xlsx", 
                     sheet = "Output")
@@ -72,7 +76,24 @@ pFtest(fe,pooling)
 phtest(re,fe)
 
 
+
+#perform Wald Test to determine if 3rd and 4th predictor variables are both zero
+wald.test(Sigma = vcov(fe), b = coef(fe), Terms = 3:4)
+
+
+#Wooldridge Test for AR(1) Errors in FE Panel Models
+pwartest(fe, type = "HC3")
+
 #=============================================================================================
+
+
+#--------------- ROBUST STANDARD ERROR 
+robust <- lm_robust(STLEV ~ GRWTH + SIZE + PROF + LIQD + UNIQ + TANG +GDP +COVID,
+                    data = Output, 
+                    fixed_effects = ~ INDS,
+                    se_type = "HC1")
+
+summary(robust)
 
 
 # PEARSON TABULATE CORRELATION
