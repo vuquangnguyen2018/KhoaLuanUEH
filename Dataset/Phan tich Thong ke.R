@@ -32,6 +32,10 @@ Output<-Output %>%  # HOSE = 1; HNX =2 ; UPCOM =3
   mutate(ID_San = ifelse(San == "HOSE", 1, 
                      ifelse(San == "HNX", 2, 3)))
 
+
+Output<-Output %>%
+  mutate(COVID= ifelse(ID_Year==2018,0,1))
+  
 #Output %>%
  # filter_at(vars(GRWTH,SIZE,PROF,LIQD,UNIQ,TANG,GDP,COVID,INDS), all_vars(!is.na(.))) %>%
  # select(GRWTH,SIZE,PROF,LIQD,UNIQ,TANG,GDP,COVID) %>%
@@ -172,37 +176,47 @@ summary(fe_BL)
 
 
 
-
-
-
-# ------------------------------------------- GROUP BY Year and INDS
-
-Output_INDS <- Output %>%
-              group_by(ID_Year,INDS) %>%
-              summarise_at(vars(STLEV,LTLEV,BLEV),list(mean))
-
-
-# FE------------------------
-fe_INDS_ST <- plm(STLEV ~ INDS,
-             data = Output_INDS, 
-             index = c("ID_Year"),
-             model = "within")
-
-fe_INDS_LT <- plm(LTLEV ~ INDS,
-                  data = Output_INDS, 
-                  index = c("ID_Year"),
-                  model = "within")
-fe_INDS_BL <- plm(BLEV ~ INDS,
-                  data = Output_INDS, 
-                  index = c("ID_Year"),
-                  model = "within")
-
-summary(fe_INDS_ST)
-summary(fe_INDS_LT)
-summary(fe_INDS_BL)
-
-
-#--------------------------------------------------------------------------------
+# CTRL + SHIFT + C
+# 
+# 
+# # ------------------------------------------- GROUP BY Year and INDS
+# 
+# Output_INDS <- Output %>%
+#               group_by(ID_Year,INDS) %>%
+#               summarise_at(vars(STLEV,LTLEV,BLEV),list(mean))
+# 
+# 
+# 
+# Output_INDS_1 <- Output %>%
+#   group_by(ID_Year,INDS) %>%
+#   filter(INDS==1) %>%
+#   summarise_at(vars(STLEV,LTLEV,BLEV),list(mean))
+# 
+# 
+# 
+# 
+# 
+# # FE------------------------
+# fe_INDS_ST <- plm(STLEV ~ INDS,
+#              data = Output_INDS, 
+#              index = c("ID_Year"),
+#              model = "within")
+# 
+# fe_INDS_LT <- plm(LTLEV ~ INDS,
+#                   data = Output_INDS, 
+#                   index = c("ID_Year"),
+#                   model = "within")
+# fe_INDS_BL <- plm(BLEV ~ INDS,
+#                   data = Output_INDS, 
+#                   index = c("ID_Year"),
+#                   model = "within")
+# 
+# summary(fe_INDS_ST)
+# summary(fe_INDS_LT)
+# summary(fe_INDS_BL)
+# 
+# 
+# #--------------------------------------------------------------------------------
 
 
 
