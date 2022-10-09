@@ -1,5 +1,5 @@
 clear
-import excel "C:\Users\Vu Quang Nguyen\Working\KhoaLuanUEH\Dataset\Report.xlsx", sheet("Output") cellrange(B1:T914) firstrow
+import excel "C:\Users\Vu Quang Nguyen\Working\KhoaLuanUEH\Dataset\Report.xlsx", sheet("Output") cellrange(B1:T883) firstrow
 gen ID = _n
 
 
@@ -18,9 +18,13 @@ graph hbar (mean) GRWTH SIZE LIQD  , over(INDS)
 graph hbar (mean) STLEV LTLEV BLEV  , over(INDS)
 
 /// CORRELATION
-pwcorr GRWTH SIZE PROF LIQD UNIQ TANG GDP COVID, star(.01)
+pwcorr STLEV LTLEV BLEV GRWTH SIZE PROF LIQD UNIQ TANG GDP COVID , star(.05)
 // HOI QUY REGRESSION =======================================================
 reg STLEV GRWTH SIZE PROF LIQD UNIQ TANG INDS  GDP COVID
+reg LTLEV GRWTH SIZE PROF LIQD UNIQ TANG INDS  GDP COVID
+reg BLEV GRWTH SIZE PROF LIQD UNIQ TANG INDS  GDP COVID
+// Kiểm tra đa cộng tuyến
+vif
 
 // # TESTING MODEL: 
 // # Chow: H0: OLS Gop phu hop , H1: FE phu hop -> p_value <5% -> Chon FE

@@ -12,6 +12,8 @@ library(aod)
 library(MASS)
 library(estimatr)
 
+
+
 #==================IMPORT===========================================================================
 rm(list = ls()) # CLEAR
 setwd("C:/Users/Vu Quang Nguyen/Working/KhoaLuanUEH/Dataset")
@@ -19,7 +21,7 @@ setwd("C:/Users/Vu Quang Nguyen/Working/KhoaLuanUEH/Dataset")
 Output<- read_excel("C:/Users/Vu Quang Nguyen/Working/KhoaLuanUEH/Dataset/Report.xlsx", 
                     sheet = "Output")
 
-Output<-select(Output,-1)
+# Output<-select(Output,-1)
 Output <- Output %>% 
   mutate(ID=row_number())
 
@@ -30,52 +32,189 @@ Output<-Output %>%  # HOSE = 1; HNX =2 ; UPCOM =3
   mutate(ID_San = ifelse(San == "HOSE", 1, 
                      ifelse(San == "HNX", 2, 3)))
 
-Output %>%
-  filter_at(vars(GRWTH,SIZE,PROF,LIQD,UNIQ,TANG,GDP,COVID,INDS), all_vars(!is.na(.))) %>%
-  select(GRWTH,SIZE,PROF,LIQD,UNIQ,TANG,GDP,COVID) %>%
-  summary()
+#Output %>%
+ # filter_at(vars(GRWTH,SIZE,PROF,LIQD,UNIQ,TANG,GDP,COVID,INDS), all_vars(!is.na(.))) %>%
+ # select(GRWTH,SIZE,PROF,LIQD,UNIQ,TANG,GDP,COVID) %>%
+ # summary(GRWTH,SIZE,PROF,LIQD,UNIQ,TANG,GDP,COVID)
 
 
 #--------- SETTING REGRESSION
 
+#------------------ Short-Term Regression ---------------------------
+
 # POLS------------------------
-pooling <- plm(STLEV ~ GRWTH + SIZE + PROF + LIQD + UNIQ + TANG +GDP +COVID,
+pooling_ST <- plm(STLEV ~ GRWTH + SIZE + PROF + LIQD + UNIQ + TANG +GDP +COVID,
           data = Output, 
           index = c("INDS","ID_Year"),
           model = "pooling")
-summary(pooling)
+summary(pooling_ST)
 
 
 # FE------------------------
-fe <- plm(STLEV ~ GRWTH + SIZE + PROF + LIQD + UNIQ + TANG +GDP +COVID,
+fe_ST <- plm(STLEV ~ GRWTH + SIZE + PROF + LIQD + UNIQ + TANG +GDP +COVID,
           data = Output, 
           index = c("INDS","ID_Year"),
           model = "within")
-summary(fe)
+summary(fe_ST)
 
 #RANDOM EFFECT MODEL-------------------------------
 
 
 # RE------------------------
-re <- plm(STLEV ~ GRWTH +SIZE + LIQD +TANG + UNIQ, 
+re_ST <- plm(STLEV ~ GRWTH +SIZE + LIQD +TANG + UNIQ + TANG, 
           data = Output, 
           index = c("INDS","ID_Year"),
           model = "random")
-summary(re)
+summary(re_ST)
+
+
+#------------------ Long-Term Regression ---------------------------
+# POLS------------------------
+pooling_LT <- plm(LTLEV ~ GRWTH + SIZE + PROF + LIQD + UNIQ + TANG +GDP +COVID,
+                  data = Output, 
+                  index = c("INDS","ID_Year"),
+                  model = "pooling")
+summary(pooling_LT)
+
+
+# FE------------------------
+fe_LT <- plm(LTLEV ~ GRWTH + SIZE + PROF + LIQD + UNIQ + TANG +GDP +COVID,
+             data = Output, 
+             index = c("INDS","ID_Year"),
+             model = "within")
+summary(fe_LT)
+
+#RANDOM EFFECT MODEL-------------------------------
+
+
+# RE------------------------
+re_LT <- plm(LTLEV ~ GRWTH +SIZE + LIQD +TANG + UNIQ + TANG, 
+             data = Output, 
+             index = c("INDS","ID_Year"),
+             model = "random")
+summary(re_LT)
 
 
 
-#_---------- TESTING
+#------------------ Total Book Value Regression ---------------------------
+
+# POLS------------------------
+pooling_BL <- plm(BLEV ~ GRWTH + SIZE + PROF + LIQD + UNIQ + TANG +GDP +COVID,
+                  data = Output, 
+                  index = c("INDS","ID_Year"),
+                  model = "pooling")
+summary(pooling_BL)
+
+
+# FE------------------------
+fe_BL <- plm(BLEV ~ GRWTH + SIZE + PROF + LIQD + UNIQ + TANG +GDP +COVID,
+             data = Output, 
+             index = c("INDS","ID_Year"),
+             model = "within")
+summary(fe_BL)
+
+#RANDOM EFFECT MODEL-------------------------------
+
+
+# RE------------------------
+re_BL <- plm(BLEV ~ GRWTH +SIZE + LIQD +TANG + UNIQ + TANG, 
+             data = Output, 
+             index = c("INDS","ID_Year"),
+             model = "random")
+summary(re_BL)
+
+
+#_---------- TESTING--------------------------------------------------------------------
+
+
+#------------------ Short-Term Regression ---------------------------
+
 # LM TEST for Random vs OLS (Lagrange Multiplier Test - (Honda)), H0: OLS phù hợp, H1: REM Phù hợp
-plmtest(pooling)
+plmtest(pooling_ST)
 
 #LM TEST for Fixed vs OLS (F-test): H0 OLS phù hợp; H1: FEM phù hợp
-pFtest(fe,pooling)
+pFtest(fe_ST,pooling_ST)
 
 #Hausman Test for Fixed VS RANDOM: H0: REM Phù hợp; H1: FEM Phù hợp
-phtest(re,fe)
+phtest(re_ST,fe_ST)
+
+#------------------ Long-Term Regression ---------------------------
+
+# LM TEST for Random vs OLS (Lagrange Multiplier Test - (Honda)), H0: OLS phù hợp, H1: REM Phù hợp
+plmtest(pooling_LT)
+
+#LM TEST for Fixed vs OLS (F-test): H0 OLS phù hợp; H1: FEM phù hợp
+pFtest(fe_LT,pooling_LT)
+
+#Hausman Test for Fixed VS RANDOM: H0: REM Phù hợp; H1: FEM Phù hợp
+phtest(re_LT,fe_LT)
+
+#------------------ Total Book Value Regression ---------------------------
+
+# LM TEST for Random vs OLS (Lagrange Multiplier Test - (Honda)), H0: OLS phù hợp, H1: REM Phù hợp
+plmtest(pooling_BL)
+
+#LM TEST for Fixed vs OLS (F-test): H0 OLS phù hợp; H1: FEM phù hợp
+pFtest(fe_BL,pooling_BL)
+
+#Hausman Test for Fixed VS RANDOM: H0: REM Phù hợp; H1: FEM Phù hợp
+phtest(re_BL,fe_BL)
 
 
+
+
+
+# ---------------------- SUMMARY mô hình FEM cho 3 thang đo
+
+summary(fe_ST)
+summary(fe_LT)
+summary(fe_BL)
+
+
+
+
+
+
+# ------------------------------------------- GROUP BY Year and INDS
+
+Output_INDS <- Output %>%
+              group_by(ID_Year,INDS) %>%
+              summarise_at(vars(STLEV,LTLEV,BLEV),list(mean))
+
+
+# FE------------------------
+fe_INDS_ST <- plm(STLEV ~ INDS,
+             data = Output_INDS, 
+             index = c("ID_Year"),
+             model = "within")
+
+fe_INDS_LT <- plm(LTLEV ~ INDS,
+                  data = Output_INDS, 
+                  index = c("ID_Year"),
+                  model = "within")
+fe_INDS_BL <- plm(BLEV ~ INDS,
+                  data = Output_INDS, 
+                  index = c("ID_Year"),
+                  model = "within")
+
+summary(fe_INDS_ST)
+summary(fe_INDS_LT)
+summary(fe_INDS_BL)
+
+
+#--------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+#--------------------- POST REGRESSION ------------------------------------------------------
 
 #perform Wald Test to determine if 3rd and 4th predictor variables are both zero
 wald.test(Sigma = vcov(fe), b = coef(fe), Terms = 3:4)
@@ -106,6 +245,20 @@ upper[upper.tri(Corr)]<-""
 upper<-as.data.frame(upper)
 upper
 View(upper)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #-------------- PLOT=======================================================================
 
